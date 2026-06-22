@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire World</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginBox" class="login-box">
+<h1>EMPIRE WORLD</h1>
+<input id="username" placeholder="اسم الحساب">
+<button onclick="login()">دخول</button>
+</div>
+
+<div id="game" style="display:none;">
+
+<header>
+<h1>Empire Online</h1>
+
+<div class="online">
+المتصلين الآن
+<div id="online">0</div>
+</div>
+</header>
+
+<section class="stats">
+
+<div class="card">
+<h2>الرصيد</h2>
+<p id="money">0</p>
+</div>
+
+<div class="card">
+<h2>القرض</h2>
+<p id="loan">0</p>
+</div>
+
+<div class="card">
+<h2>الوظيفة</h2>
+<p id="job">-</p>
+</div>
+
+</section>
+
+<section class="shop">
+
+<div class="item">
+<img src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=1200&auto=format&fit=crop">
+<h3>كامري</h3>
+</div>
+
+<div class="item">
+<img src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200&auto=format&fit=crop">
+<h3>بيت</h3>
+</div>
+
+<div class="item">
+<img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop">
+<h3>شركة</h3>
+</div>
+
+</section>
+
+<section class="actions">
+<button onclick="takeLoan()">أخذ قرض</button>
+<button onclick="salary()">استلام راتب</button>
+</section>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+const socket = io();
+
+function login(){
+
+const username = document.getElementById('username').value;
+
+if(username.trim() === '') return;
+
+localStorage.setItem('username', username);
+
+socket.emit('login', {username});
+
+document.getElementById('loginBox').style.display = 'none';
+document.getElementById('game').style.display = 'block';
+
+}
+
+socket.on('online', (count)=>{
+document.getElementById('online').innerText = count;
+});
+
+socket.on('userData', (user)=>{
+
+document.getElementById('money').innerText = user.money + ' SAR';
+document.getElementById('loan').innerText = user.loan + ' SAR';
+document.getElementById('job').innerText = user.job;
+
+});
+
+function takeLoan(){
+socket.emit('takeLoan');
+}
+
+function salary(){
+socket.emit('salary');
+}
+
+window.onload = ()=>{
+
+const saved = localStorage.getItem('username');
+
+if(saved){
+document.getElementById('username').value = saved;
+login();
+}
+
+}
+</script>
+
+</body>
+</html>
